@@ -1,16 +1,25 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+// App.js
 import axios from "axios";
+import { useState } from "react";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import ListItem from "./ListItem";
+
+import React from "react";
 
 const App = () => {
   const [data, setData] = useState([]);
+  const [formData, setFormData] = useState({
+    title: "",
+    body: "",
+    userId: 1,
+  });
 
   const handleGetRequest = async () => {
     try {
@@ -27,11 +36,7 @@ const App = () => {
     try {
       const response = await axios.post(
         "https://jsonplaceholder.typicode.com/posts",
-        {
-          title: "New Item",
-          body: "This is a new item created using a POST request.",
-          userId: 1,
-        }
+        formData
       );
       setData([...data, response.data]);
     } catch (error) {
@@ -39,14 +44,35 @@ const App = () => {
     }
   };
 
+  const handleInputChange = (name, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={handleGetRequest} style={styles.button}>
-        <Text style={styles.buttonText}>Fetch Data</Text>
-      </TouchableOpacity>
+      {/* Form */}
+      <TextInput
+        placeholder="Title"
+        value={formData.title}
+        onChangeText={(text) => handleInputChange("title", text)}
+        style={styles.input}
+      />
+      <TextInput
+        placeholder="Body"
+        value={formData.body}
+        onChangeText={(text) => handleInputChange("body", text)}
+        style={styles.input}
+      />
       <TouchableOpacity onPress={handlePostRequest} style={styles.button}>
         <Text style={styles.buttonText}>Create New Item</Text>
       </TouchableOpacity>
+      <TouchableOpacity onPress={handleGetRequest} style={styles.button}>
+        <Text style={styles.buttonText}>Fetch Data</Text>
+      </TouchableOpacity>
+      {/* Display Data */}
       <FlatList
         data={data}
         renderItem={({ item }) => <ListItem item={item} />}
@@ -56,4 +82,33 @@ const App = () => {
   );
 };
 
-// ...styles remain the same
+const styles = StyleSheet.create({
+  container: {
+    marginTop: 50,
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+  },
+  button: {
+    backgroundColor: "blue",
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 10,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 5,
+    padding: 10,
+    marginVertical: 5,
+    width: "80%",
+  },
+});
+
+export default App;
